@@ -1,0 +1,30 @@
+//!
+open("C:\Users\yebreo1\Desktop\Yet Folder\Script\Perl\gettests\Char\krash_tpd_cnt_char.csv");
+Bivariate(
+    Y( :VALUE ),
+    X( :TEMP ),
+    By( :PATTERN),
+    SendToReport(
+        Dispatch(
+           {},
+           "VALUE",
+           TextEditBox,
+           {Set Text( "TPD_CNT_CHAR" )}
+        ),
+        Dispatch(
+            {},
+            "Bivar Plot",
+            FrameBox,
+            {Row Legend(
+                WAFER ,
+                Color( 1 ),
+                Color Theme( "JMP Default" ),
+                Marker( 0 ),
+                Marker Theme( "" ),
+                Continuous Scale( 0 ),
+                Reverse Scale( 0 ),
+                Excluded Rows( 0 )
+            )}
+        )
+    )
+);

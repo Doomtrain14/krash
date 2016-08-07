@@ -1,0 +1,36 @@
+//!
+open("C:\Users\yebreo1\Desktop\Yet Folder\Script\Perl\gettests\Char\krash_bin_result.csv");
+Overlay Plot(
+    X( :DIE_X ),
+    Y( :DIE_Y ),
+    By( :WAFER ),
+    Separate Axes( 1 ),
+    SendToReport(
+        Dispatch(
+            {},
+            "Overlay Plot Graph",
+            FrameBox,
+            {Frame Size( 560, 500 ), Row Legend(
+                TEXT,
+                Color( 1 ),
+                Color Theme( "JMP Default" ),
+                Marker( 0 ),
+                Marker Theme( "" ),
+                Continuous Scale( 0 ),
+                Reverse Scale( 0 ),
+                Excluded Rows( 0 )
+            )}
+        ),
+        Dispatch(
+            {},
+            "",
+            AxisBox( 3 ),
+        ),
+        Dispatch(
+           {},
+           "TEXT",
+           StringColBox,
+           {Set Heading( "Bin Name" )}
+        )
+    )
+);
