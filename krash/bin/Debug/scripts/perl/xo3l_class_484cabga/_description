@@ -1,0 +1,4 @@
+This script will convert existing xo3l datalog to the new datalog format
+- Command line usage
+    xo3l.pl <filename1> <filename2> ... <filenameN>
+      

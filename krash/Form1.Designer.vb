@@ -36,7 +36,7 @@ Partial Class Form1
         Me.lb_testblocks = New System.Windows.Forms.ListBox()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
         Me.sb_status = New System.Windows.Forms.ToolStripStatusLabel()
-        Me.sb_label_spacer = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.sb_read_file = New System.Windows.Forms.ToolStripStatusLabel()
         Me.sb_menu = New System.Windows.Forms.ToolStripDropDownButton()
         Me.sb_menu_about = New System.Windows.Forms.ToolStripMenuItem()
         Me.sb_menu_config = New System.Windows.Forms.ToolStripMenuItem()
@@ -74,8 +74,9 @@ Partial Class Form1
         Me.col_key = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.col_value = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.col_line = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
-        Me.width = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.line_width = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.cmd_add_refline = New System.Windows.Forms.Button()
+        Me.cmd_clear_lines = New System.Windows.Forms.Button()
         Me.pic_ref_color = New System.Windows.Forms.PictureBox()
         Me.cmb_ref_axis = New System.Windows.Forms.ComboBox()
         Me.Label13 = New System.Windows.Forms.Label()
@@ -86,8 +87,8 @@ Partial Class Form1
         Me.Label12 = New System.Windows.Forms.Label()
         Me.Label11 = New System.Windows.Forms.Label()
         Me.Label4 = New System.Windows.Forms.Label()
-        Me.cmd_clear_lines = New System.Windows.Forms.Button()
         Me.gb_axis = New System.Windows.Forms.GroupBox()
+        Me.chk_useminmax = New System.Windows.Forms.CheckBox()
         Me.cmd_clear_axis = New System.Windows.Forms.Button()
         Me.txt_yincrement = New System.Windows.Forms.TextBox()
         Me.txt_ymaximum = New System.Windows.Forms.TextBox()
@@ -113,6 +114,7 @@ Partial Class Form1
         Me.cmb_xscale = New System.Windows.Forms.ComboBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.tool_tip = New System.Windows.Forms.ToolTip(Me.components)
+        Me.sb_menu_runscript = New System.Windows.Forms.ToolStripMenuItem()
         Me.gb_inputfiles.SuspendLayout()
         Me.gb_testblocks.SuspendLayout()
         Me.StatusStrip1.SuspendLayout()
@@ -186,7 +188,7 @@ Partial Class Form1
         Me.gb_testblocks.Margin = New System.Windows.Forms.Padding(4)
         Me.gb_testblocks.Name = "gb_testblocks"
         Me.gb_testblocks.Padding = New System.Windows.Forms.Padding(4)
-        Me.gb_testblocks.Size = New System.Drawing.Size(236, 296)
+        Me.gb_testblocks.Size = New System.Drawing.Size(236, 308)
         Me.gb_testblocks.TabIndex = 1
         Me.gb_testblocks.TabStop = False
         Me.gb_testblocks.Text = "Testblocks"
@@ -194,7 +196,7 @@ Partial Class Form1
         'cmd_all
         '
         Me.cmd_all.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.cmd_all.Location = New System.Drawing.Point(117, 264)
+        Me.cmd_all.Location = New System.Drawing.Point(116, 275)
         Me.cmd_all.Margin = New System.Windows.Forms.Padding(2, 4, 2, 4)
         Me.cmd_all.Name = "cmd_all"
         Me.cmd_all.Size = New System.Drawing.Size(54, 22)
@@ -205,7 +207,7 @@ Partial Class Form1
         'cmd_clear
         '
         Me.cmd_clear.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.cmd_clear.Location = New System.Drawing.Point(175, 264)
+        Me.cmd_clear.Location = New System.Drawing.Point(174, 275)
         Me.cmd_clear.Margin = New System.Windows.Forms.Padding(2, 4, 2, 4)
         Me.cmd_clear.Name = "cmd_clear"
         Me.cmd_clear.Size = New System.Drawing.Size(54, 22)
@@ -216,7 +218,7 @@ Partial Class Form1
         'lbl_selected_test
         '
         Me.lbl_selected_test.AutoSize = True
-        Me.lbl_selected_test.Location = New System.Drawing.Point(4, 269)
+        Me.lbl_selected_test.Location = New System.Drawing.Point(3, 280)
         Me.lbl_selected_test.Name = "lbl_selected_test"
         Me.lbl_selected_test.Size = New System.Drawing.Size(56, 13)
         Me.lbl_selected_test.TabIndex = 1
@@ -224,8 +226,7 @@ Partial Class Form1
         '
         'lb_testblocks
         '
-        Me.lb_testblocks.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
+        Me.lb_testblocks.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.lb_testblocks.BackColor = System.Drawing.Color.Ivory
         Me.lb_testblocks.FormattingEnabled = True
@@ -233,13 +234,13 @@ Partial Class Form1
         Me.lb_testblocks.Margin = New System.Windows.Forms.Padding(4)
         Me.lb_testblocks.Name = "lb_testblocks"
         Me.lb_testblocks.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple
-        Me.lb_testblocks.Size = New System.Drawing.Size(222, 238)
+        Me.lb_testblocks.Size = New System.Drawing.Size(222, 251)
         Me.lb_testblocks.TabIndex = 0
         '
         'StatusStrip1
         '
-        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.sb_status, Me.sb_label_spacer, Me.sb_menu})
-        Me.StatusStrip1.Location = New System.Drawing.Point(0, 573)
+        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.sb_status, Me.sb_read_file, Me.sb_menu})
+        Me.StatusStrip1.Location = New System.Drawing.Point(0, 585)
         Me.StatusStrip1.Name = "StatusStrip1"
         Me.StatusStrip1.Padding = New System.Windows.Forms.Padding(1, 0, 17, 0)
         Me.StatusStrip1.Size = New System.Drawing.Size(917, 22)
@@ -249,24 +250,30 @@ Partial Class Form1
         'sb_status
         '
         Me.sb_status.AutoSize = False
+        Me.sb_status.BorderSides = CType((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) _
+            Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) _
+            Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom), System.Windows.Forms.ToolStripStatusLabelBorderSides)
         Me.sb_status.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
         Me.sb_status.Name = "sb_status"
         Me.sb_status.Size = New System.Drawing.Size(230, 17)
         Me.sb_status.Text = "Status: Idle/Ready"
         Me.sb_status.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'sb_label_spacer
+        'sb_read_file
         '
-        Me.sb_label_spacer.AutoSize = False
-        Me.sb_label_spacer.Name = "sb_label_spacer"
-        Me.sb_label_spacer.Size = New System.Drawing.Size(622, 17)
-        Me.sb_label_spacer.Text = resources.GetString("sb_label_spacer.Text")
+        Me.sb_read_file.AutoSize = False
+        Me.sb_read_file.BorderSides = CType((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) _
+            Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) _
+            Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom), System.Windows.Forms.ToolStripStatusLabelBorderSides)
+        Me.sb_read_file.Name = "sb_read_file"
+        Me.sb_read_file.Size = New System.Drawing.Size(622, 17)
+        Me.sb_read_file.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'sb_menu
         '
         Me.sb_menu.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right
         Me.sb_menu.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
-        Me.sb_menu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.sb_menu_about, Me.sb_menu_config})
+        Me.sb_menu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.sb_menu_config, Me.sb_menu_runscript, Me.sb_menu_about})
         Me.sb_menu.Image = CType(resources.GetObject("sb_menu.Image"), System.Drawing.Image)
         Me.sb_menu.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.sb_menu.Name = "sb_menu"
@@ -277,7 +284,7 @@ Partial Class Form1
         '
         Me.sb_menu_about.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
         Me.sb_menu_about.Name = "sb_menu_about"
-        Me.sb_menu_about.Size = New System.Drawing.Size(148, 22)
+        Me.sb_menu_about.Size = New System.Drawing.Size(152, 22)
         Me.sb_menu_about.Text = "About"
         Me.sb_menu_about.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
@@ -286,7 +293,7 @@ Partial Class Form1
         Me.sb_menu_config.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
         Me.sb_menu_config.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.sb_menu_enable_jmp, Me.sb_menu_main_reset})
         Me.sb_menu_config.Name = "sb_menu_config"
-        Me.sb_menu_config.Size = New System.Drawing.Size(148, 22)
+        Me.sb_menu_config.Size = New System.Drawing.Size(152, 22)
         Me.sb_menu_config.Text = "Configuration"
         Me.sb_menu_config.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
@@ -400,9 +407,9 @@ Partial Class Form1
         'gb_columns
         '
         Me.gb_columns.Controls.Add(Me.lb_header_list)
-        Me.gb_columns.Location = New System.Drawing.Point(6, 72)
+        Me.gb_columns.Location = New System.Drawing.Point(8, 72)
         Me.gb_columns.Name = "gb_columns"
-        Me.gb_columns.Size = New System.Drawing.Size(133, 481)
+        Me.gb_columns.Size = New System.Drawing.Size(133, 492)
         Me.gb_columns.TabIndex = 0
         Me.gb_columns.TabStop = False
         Me.gb_columns.Text = "Columns"
@@ -417,7 +424,7 @@ Partial Class Form1
         Me.lb_header_list.FormattingEnabled = True
         Me.lb_header_list.Location = New System.Drawing.Point(6, 20)
         Me.lb_header_list.Name = "lb_header_list"
-        Me.lb_header_list.Size = New System.Drawing.Size(121, 433)
+        Me.lb_header_list.Size = New System.Drawing.Size(121, 446)
         Me.lb_header_list.TabIndex = 0
         '
         'gb_roles
@@ -433,9 +440,9 @@ Partial Class Form1
         Me.gb_roles.Controls.Add(Me.lb_xfactor)
         Me.gb_roles.Controls.Add(Me.lb_yvalue)
         Me.gb_roles.Controls.Add(Me.lb_groupby)
-        Me.gb_roles.Location = New System.Drawing.Point(145, 72)
+        Me.gb_roles.Location = New System.Drawing.Point(147, 72)
         Me.gb_roles.Name = "gb_roles"
-        Me.gb_roles.Size = New System.Drawing.Size(216, 481)
+        Me.gb_roles.Size = New System.Drawing.Size(216, 492)
         Me.gb_roles.TabIndex = 1
         Me.gb_roles.TabStop = False
         Me.gb_roles.Text = "Roles"
@@ -443,7 +450,7 @@ Partial Class Form1
         'cmd_clear_roles
         '
         Me.cmd_clear_roles.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.cmd_clear_roles.Location = New System.Drawing.Point(155, 449)
+        Me.cmd_clear_roles.Location = New System.Drawing.Point(157, 462)
         Me.cmd_clear_roles.Margin = New System.Windows.Forms.Padding(2, 4, 2, 4)
         Me.cmd_clear_roles.Name = "cmd_clear_roles"
         Me.cmd_clear_roles.Size = New System.Drawing.Size(54, 22)
@@ -455,7 +462,7 @@ Partial Class Form1
         '
         Me.chk_tabulate.Anchor = System.Windows.Forms.AnchorStyles.Top
         Me.chk_tabulate.AutoSize = True
-        Me.chk_tabulate.Location = New System.Drawing.Point(98, 324)
+        Me.chk_tabulate.Location = New System.Drawing.Point(98, 337)
         Me.chk_tabulate.Name = "chk_tabulate"
         Me.chk_tabulate.Size = New System.Drawing.Size(68, 17)
         Me.chk_tabulate.TabIndex = 0
@@ -476,7 +483,7 @@ Partial Class Form1
         'cmd_legend
         '
         Me.cmd_legend.Anchor = System.Windows.Forms.AnchorStyles.Top
-        Me.cmd_legend.Location = New System.Drawing.Point(5, 347)
+        Me.cmd_legend.Location = New System.Drawing.Point(5, 360)
         Me.cmd_legend.Margin = New System.Windows.Forms.Padding(2, 4, 2, 4)
         Me.cmd_legend.Name = "cmd_legend"
         Me.cmd_legend.Size = New System.Drawing.Size(88, 22)
@@ -487,7 +494,7 @@ Partial Class Form1
         'cmd_by
         '
         Me.cmd_by.Anchor = System.Windows.Forms.AnchorStyles.Top
-        Me.cmd_by.Location = New System.Drawing.Point(5, 223)
+        Me.cmd_by.Location = New System.Drawing.Point(5, 236)
         Me.cmd_by.Margin = New System.Windows.Forms.Padding(2, 4, 2, 4)
         Me.cmd_by.Name = "cmd_by"
         Me.cmd_by.Size = New System.Drawing.Size(88, 22)
@@ -498,7 +505,7 @@ Partial Class Form1
         'cmd_xfactor
         '
         Me.cmd_xfactor.Anchor = System.Windows.Forms.AnchorStyles.Top
-        Me.cmd_xfactor.Location = New System.Drawing.Point(5, 122)
+        Me.cmd_xfactor.Location = New System.Drawing.Point(5, 135)
         Me.cmd_xfactor.Margin = New System.Windows.Forms.Padding(2, 4, 2, 4)
         Me.cmd_xfactor.Name = "cmd_xfactor"
         Me.cmd_xfactor.Size = New System.Drawing.Size(88, 22)
@@ -522,7 +529,7 @@ Partial Class Form1
         Me.lb_legend.AllowDrop = True
         Me.lb_legend.BackColor = System.Drawing.Color.Ivory
         Me.lb_legend.FormattingEnabled = True
-        Me.lb_legend.Location = New System.Drawing.Point(98, 347)
+        Me.lb_legend.Location = New System.Drawing.Point(98, 360)
         Me.lb_legend.Name = "lb_legend"
         Me.lb_legend.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple
         Me.lb_legend.Size = New System.Drawing.Size(111, 95)
@@ -533,7 +540,7 @@ Partial Class Form1
         Me.lb_xfactor.AllowDrop = True
         Me.lb_xfactor.BackColor = System.Drawing.Color.Ivory
         Me.lb_xfactor.FormattingEnabled = True
-        Me.lb_xfactor.Location = New System.Drawing.Point(98, 122)
+        Me.lb_xfactor.Location = New System.Drawing.Point(98, 135)
         Me.lb_xfactor.Name = "lb_xfactor"
         Me.lb_xfactor.Size = New System.Drawing.Size(111, 95)
         Me.lb_xfactor.TabIndex = 5
@@ -545,7 +552,7 @@ Partial Class Form1
         Me.lb_yvalue.FormattingEnabled = True
         Me.lb_yvalue.Location = New System.Drawing.Point(98, 21)
         Me.lb_yvalue.Name = "lb_yvalue"
-        Me.lb_yvalue.Size = New System.Drawing.Size(111, 95)
+        Me.lb_yvalue.Size = New System.Drawing.Size(111, 108)
         Me.lb_yvalue.TabIndex = 3
         '
         'lb_groupby
@@ -553,7 +560,7 @@ Partial Class Form1
         Me.lb_groupby.AllowDrop = True
         Me.lb_groupby.BackColor = System.Drawing.Color.Ivory
         Me.lb_groupby.FormattingEnabled = True
-        Me.lb_groupby.Location = New System.Drawing.Point(98, 223)
+        Me.lb_groupby.Location = New System.Drawing.Point(98, 236)
         Me.lb_groupby.Name = "lb_groupby"
         Me.lb_groupby.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple
         Me.lb_groupby.Size = New System.Drawing.Size(111, 95)
@@ -573,7 +580,7 @@ Partial Class Form1
         Me.gb_jmp.Controls.Add(Me.lbl_script)
         Me.gb_jmp.Location = New System.Drawing.Point(248, 4)
         Me.gb_jmp.Name = "gb_jmp"
-        Me.gb_jmp.Size = New System.Drawing.Size(657, 563)
+        Me.gb_jmp.Size = New System.Drawing.Size(657, 575)
         Me.gb_jmp.TabIndex = 2
         Me.gb_jmp.TabStop = False
         Me.gb_jmp.Text = "JMP"
@@ -582,6 +589,7 @@ Partial Class Form1
         '
         Me.gb_lines.Controls.Add(Me.lv_refcolor)
         Me.gb_lines.Controls.Add(Me.cmd_add_refline)
+        Me.gb_lines.Controls.Add(Me.cmd_clear_lines)
         Me.gb_lines.Controls.Add(Me.pic_ref_color)
         Me.gb_lines.Controls.Add(Me.cmb_ref_axis)
         Me.gb_lines.Controls.Add(Me.Label13)
@@ -592,24 +600,23 @@ Partial Class Form1
         Me.gb_lines.Controls.Add(Me.Label12)
         Me.gb_lines.Controls.Add(Me.Label11)
         Me.gb_lines.Controls.Add(Me.Label4)
-        Me.gb_lines.Controls.Add(Me.cmd_clear_lines)
-        Me.gb_lines.Location = New System.Drawing.Point(367, 323)
+        Me.gb_lines.Location = New System.Drawing.Point(369, 349)
         Me.gb_lines.Name = "gb_lines"
-        Me.gb_lines.Size = New System.Drawing.Size(279, 230)
-        Me.gb_lines.TabIndex = 19
+        Me.gb_lines.Size = New System.Drawing.Size(279, 215)
+        Me.gb_lines.TabIndex = 1
         Me.gb_lines.TabStop = False
         Me.gb_lines.Text = "Reference Lines"
         '
         'lv_refcolor
         '
         Me.lv_refcolor.BackColor = System.Drawing.Color.Ivory
-        Me.lv_refcolor.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.col_key, Me.col_value, Me.col_line, Me.width})
+        Me.lv_refcolor.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.col_key, Me.col_value, Me.col_line, Me.line_width})
         Me.lv_refcolor.FullRowSelect = True
         Me.lv_refcolor.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None
         Me.lv_refcolor.Location = New System.Drawing.Point(100, 20)
         Me.lv_refcolor.MultiSelect = False
         Me.lv_refcolor.Name = "lv_refcolor"
-        Me.lv_refcolor.Size = New System.Drawing.Size(173, 171)
+        Me.lv_refcolor.Size = New System.Drawing.Size(173, 158)
         Me.lv_refcolor.TabIndex = 35
         Me.lv_refcolor.UseCompatibleStateImageBehavior = False
         Me.lv_refcolor.View = System.Windows.Forms.View.Details
@@ -630,9 +637,9 @@ Partial Class Form1
         Me.col_line.Text = ""
         Me.col_line.Width = 45
         '
-        'width
+        'line_width
         '
-        Me.width.Width = 0
+        Me.line_width.Width = 0
         '
         'cmd_add_refline
         '
@@ -640,10 +647,21 @@ Partial Class Form1
         Me.cmd_add_refline.Margin = New System.Windows.Forms.Padding(2, 4, 2, 4)
         Me.cmd_add_refline.Name = "cmd_add_refline"
         Me.cmd_add_refline.Size = New System.Drawing.Size(85, 22)
-        Me.cmd_add_refline.TabIndex = 34
+        Me.cmd_add_refline.TabIndex = 4
         Me.cmd_add_refline.Text = "&Add"
         Me.tool_tip.SetToolTip(Me.cmd_add_refline, "Click this button to add input files")
         Me.cmd_add_refline.UseVisualStyleBackColor = True
+        '
+        'cmd_clear_lines
+        '
+        Me.cmd_clear_lines.Anchor = System.Windows.Forms.AnchorStyles.Top
+        Me.cmd_clear_lines.Location = New System.Drawing.Point(219, 185)
+        Me.cmd_clear_lines.Margin = New System.Windows.Forms.Padding(2, 4, 2, 4)
+        Me.cmd_clear_lines.Name = "cmd_clear_lines"
+        Me.cmd_clear_lines.Size = New System.Drawing.Size(54, 22)
+        Me.cmd_clear_lines.TabIndex = 9
+        Me.cmd_clear_lines.Text = "&Clear"
+        Me.cmd_clear_lines.UseVisualStyleBackColor = True
         '
         'pic_ref_color
         '
@@ -663,7 +681,7 @@ Partial Class Form1
         Me.cmb_ref_axis.Location = New System.Drawing.Point(44, 20)
         Me.cmb_ref_axis.Name = "cmb_ref_axis"
         Me.cmb_ref_axis.Size = New System.Drawing.Size(50, 21)
-        Me.cmb_ref_axis.TabIndex = 32
+        Me.cmb_ref_axis.TabIndex = 0
         '
         'Label13
         '
@@ -681,7 +699,7 @@ Partial Class Form1
         Me.num_line_width.Location = New System.Drawing.Point(45, 128)
         Me.num_line_width.Name = "num_line_width"
         Me.num_line_width.Size = New System.Drawing.Size(49, 21)
-        Me.num_line_width.TabIndex = 30
+        Me.num_line_width.TabIndex = 3
         Me.num_line_width.Value = New Decimal(New Integer() {1, 0, 0, 0})
         '
         'Label14
@@ -700,7 +718,7 @@ Partial Class Form1
         Me.txt_ref_label.Location = New System.Drawing.Point(45, 74)
         Me.txt_ref_label.Name = "txt_ref_label"
         Me.txt_ref_label.Size = New System.Drawing.Size(49, 21)
-        Me.txt_ref_label.TabIndex = 25
+        Me.txt_ref_label.TabIndex = 2
         Me.txt_ref_label.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'txt_ref_value
@@ -710,7 +728,7 @@ Partial Class Form1
         Me.txt_ref_value.Location = New System.Drawing.Point(45, 47)
         Me.txt_ref_value.Name = "txt_ref_value"
         Me.txt_ref_value.Size = New System.Drawing.Size(49, 21)
-        Me.txt_ref_value.TabIndex = 24
+        Me.txt_ref_value.TabIndex = 1
         Me.txt_ref_value.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label12
@@ -740,19 +758,9 @@ Partial Class Form1
         Me.Label4.TabIndex = 20
         Me.Label4.Text = "Value"
         '
-        'cmd_clear_lines
-        '
-        Me.cmd_clear_lines.Anchor = System.Windows.Forms.AnchorStyles.Bottom
-        Me.cmd_clear_lines.Location = New System.Drawing.Point(220, 198)
-        Me.cmd_clear_lines.Margin = New System.Windows.Forms.Padding(2, 4, 2, 4)
-        Me.cmd_clear_lines.Name = "cmd_clear_lines"
-        Me.cmd_clear_lines.Size = New System.Drawing.Size(54, 22)
-        Me.cmd_clear_lines.TabIndex = 11
-        Me.cmd_clear_lines.Text = "&Clear"
-        Me.cmd_clear_lines.UseVisualStyleBackColor = True
-        '
         'gb_axis
         '
+        Me.gb_axis.Controls.Add(Me.chk_useminmax)
         Me.gb_axis.Controls.Add(Me.cmd_clear_axis)
         Me.gb_axis.Controls.Add(Me.txt_yincrement)
         Me.gb_axis.Controls.Add(Me.txt_ymaximum)
@@ -777,17 +785,28 @@ Partial Class Form1
         Me.gb_axis.Controls.Add(Me.lbl_base_power)
         Me.gb_axis.Controls.Add(Me.cmb_xscale)
         Me.gb_axis.Controls.Add(Me.Label1)
-        Me.gb_axis.Location = New System.Drawing.Point(367, 72)
+        Me.gb_axis.Location = New System.Drawing.Point(369, 72)
         Me.gb_axis.Name = "gb_axis"
-        Me.gb_axis.Size = New System.Drawing.Size(279, 245)
+        Me.gb_axis.Size = New System.Drawing.Size(279, 271)
         Me.gb_axis.TabIndex = 2
         Me.gb_axis.TabStop = False
         Me.gb_axis.Text = "Axis"
         '
+        'chk_useminmax
+        '
+        Me.chk_useminmax.Anchor = System.Windows.Forms.AnchorStyles.Top
+        Me.chk_useminmax.AutoSize = True
+        Me.chk_useminmax.Location = New System.Drawing.Point(79, 141)
+        Me.chk_useminmax.Name = "chk_useminmax"
+        Me.chk_useminmax.Size = New System.Drawing.Size(112, 17)
+        Me.chk_useminmax.TabIndex = 36
+        Me.chk_useminmax.Text = "Use data min/max"
+        Me.chk_useminmax.UseVisualStyleBackColor = True
+        '
         'cmd_clear_axis
         '
         Me.cmd_clear_axis.Anchor = System.Windows.Forms.AnchorStyles.Bottom
-        Me.cmd_clear_axis.Location = New System.Drawing.Point(220, 216)
+        Me.cmd_clear_axis.Location = New System.Drawing.Point(220, 242)
         Me.cmd_clear_axis.Margin = New System.Windows.Forms.Padding(2, 4, 2, 4)
         Me.cmd_clear_axis.Name = "cmd_clear_axis"
         Me.cmd_clear_axis.Size = New System.Drawing.Size(54, 22)
@@ -799,7 +818,7 @@ Partial Class Form1
         '
         Me.txt_yincrement.BackColor = System.Drawing.Color.Ivory
         Me.txt_yincrement.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txt_yincrement.Location = New System.Drawing.Point(186, 141)
+        Me.txt_yincrement.Location = New System.Drawing.Point(176, 166)
         Me.txt_yincrement.Name = "txt_yincrement"
         Me.txt_yincrement.Size = New System.Drawing.Size(71, 21)
         Me.txt_yincrement.TabIndex = 9
@@ -809,7 +828,7 @@ Partial Class Form1
         '
         Me.txt_ymaximum.BackColor = System.Drawing.Color.Ivory
         Me.txt_ymaximum.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txt_ymaximum.Location = New System.Drawing.Point(186, 114)
+        Me.txt_ymaximum.Location = New System.Drawing.Point(176, 114)
         Me.txt_ymaximum.Name = "txt_ymaximum"
         Me.txt_ymaximum.Size = New System.Drawing.Size(71, 21)
         Me.txt_ymaximum.TabIndex = 7
@@ -819,7 +838,7 @@ Partial Class Form1
         '
         Me.txt_yminimum.BackColor = System.Drawing.Color.Ivory
         Me.txt_yminimum.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txt_yminimum.Location = New System.Drawing.Point(186, 86)
+        Me.txt_yminimum.Location = New System.Drawing.Point(176, 86)
         Me.txt_yminimum.Name = "txt_yminimum"
         Me.txt_yminimum.Size = New System.Drawing.Size(71, 21)
         Me.txt_yminimum.TabIndex = 5
@@ -830,7 +849,7 @@ Partial Class Form1
         Me.txt_ybase_power.BackColor = System.Drawing.Color.Ivory
         Me.txt_ybase_power.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txt_ybase_power.Enabled = False
-        Me.txt_ybase_power.Location = New System.Drawing.Point(186, 59)
+        Me.txt_ybase_power.Location = New System.Drawing.Point(176, 59)
         Me.txt_ybase_power.Name = "txt_ybase_power"
         Me.txt_ybase_power.Size = New System.Drawing.Size(71, 21)
         Me.txt_ybase_power.TabIndex = 3
@@ -841,7 +860,7 @@ Partial Class Form1
         Me.cmb_yscale.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cmb_yscale.FormattingEnabled = True
         Me.cmb_yscale.Items.AddRange(New Object() {"Linear", "Log", "Power"})
-        Me.cmb_yscale.Location = New System.Drawing.Point(186, 33)
+        Me.cmb_yscale.Location = New System.Drawing.Point(176, 33)
         Me.cmb_yscale.Name = "cmb_yscale"
         Me.cmb_yscale.Size = New System.Drawing.Size(71, 21)
         Me.cmb_yscale.TabIndex = 1
@@ -850,7 +869,7 @@ Partial Class Form1
         '
         Me.chk_yminor.Anchor = System.Windows.Forms.AnchorStyles.Top
         Me.chk_yminor.AutoSize = True
-        Me.chk_yminor.Location = New System.Drawing.Point(186, 198)
+        Me.chk_yminor.Location = New System.Drawing.Point(176, 223)
         Me.chk_yminor.Name = "chk_yminor"
         Me.chk_yminor.Size = New System.Drawing.Size(15, 14)
         Me.chk_yminor.TabIndex = 13
@@ -860,7 +879,7 @@ Partial Class Form1
         '
         Me.chk_xminor.Anchor = System.Windows.Forms.AnchorStyles.Top
         Me.chk_xminor.AutoSize = True
-        Me.chk_xminor.Location = New System.Drawing.Point(79, 198)
+        Me.chk_xminor.Location = New System.Drawing.Point(79, 223)
         Me.chk_xminor.Name = "chk_xminor"
         Me.chk_xminor.Size = New System.Drawing.Size(15, 14)
         Me.chk_xminor.TabIndex = 12
@@ -869,7 +888,7 @@ Partial Class Form1
         'Label10
         '
         Me.Label10.AutoSize = True
-        Me.Label10.Location = New System.Drawing.Point(9, 198)
+        Me.Label10.Location = New System.Drawing.Point(9, 223)
         Me.Label10.Name = "Label10"
         Me.Label10.Size = New System.Drawing.Size(59, 13)
         Me.Label10.TabIndex = 34
@@ -881,7 +900,7 @@ Partial Class Form1
         Me.chk_ymajor.AutoSize = True
         Me.chk_ymajor.Checked = True
         Me.chk_ymajor.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chk_ymajor.Location = New System.Drawing.Point(186, 173)
+        Me.chk_ymajor.Location = New System.Drawing.Point(176, 198)
         Me.chk_ymajor.Name = "chk_ymajor"
         Me.chk_ymajor.Size = New System.Drawing.Size(15, 14)
         Me.chk_ymajor.TabIndex = 11
@@ -893,7 +912,7 @@ Partial Class Form1
         Me.chk_xmajor.AutoSize = True
         Me.chk_xmajor.Checked = True
         Me.chk_xmajor.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chk_xmajor.Location = New System.Drawing.Point(79, 173)
+        Me.chk_xmajor.Location = New System.Drawing.Point(79, 198)
         Me.chk_xmajor.Name = "chk_xmajor"
         Me.chk_xmajor.Size = New System.Drawing.Size(15, 14)
         Me.chk_xmajor.TabIndex = 10
@@ -902,7 +921,7 @@ Partial Class Form1
         'Label9
         '
         Me.Label9.AutoSize = True
-        Me.Label9.Location = New System.Drawing.Point(183, 17)
+        Me.Label9.Location = New System.Drawing.Point(173, 17)
         Me.Label9.Name = "Label9"
         Me.Label9.Size = New System.Drawing.Size(36, 13)
         Me.Label9.TabIndex = 31
@@ -920,7 +939,7 @@ Partial Class Form1
         'Label7
         '
         Me.Label7.AutoSize = True
-        Me.Label7.Location = New System.Drawing.Point(9, 171)
+        Me.Label7.Location = New System.Drawing.Point(9, 196)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(60, 13)
         Me.Label7.TabIndex = 29
@@ -930,7 +949,7 @@ Partial Class Form1
         '
         Me.txt_xincrement.BackColor = System.Drawing.Color.Ivory
         Me.txt_xincrement.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txt_xincrement.Location = New System.Drawing.Point(79, 141)
+        Me.txt_xincrement.Location = New System.Drawing.Point(79, 166)
         Me.txt_xincrement.Name = "txt_xincrement"
         Me.txt_xincrement.Size = New System.Drawing.Size(71, 21)
         Me.txt_xincrement.TabIndex = 8
@@ -939,7 +958,7 @@ Partial Class Form1
         'Label6
         '
         Me.Label6.AutoSize = True
-        Me.Label6.Location = New System.Drawing.Point(9, 143)
+        Me.Label6.Location = New System.Drawing.Point(9, 168)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(60, 13)
         Me.Label6.TabIndex = 27
@@ -1022,22 +1041,29 @@ Partial Class Form1
         Me.Label1.TabIndex = 19
         Me.Label1.Text = "Scale:"
         '
+        'sb_menu_runscript
+        '
+        Me.sb_menu_runscript.Name = "sb_menu_runscript"
+        Me.sb_menu_runscript.Size = New System.Drawing.Size(152, 22)
+        Me.sb_menu_runscript.Text = "Run script"
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(917, 595)
+        Me.ClientSize = New System.Drawing.Size(917, 607)
         Me.Controls.Add(Me.gb_jmp)
         Me.Controls.Add(Me.StatusStrip1)
         Me.Controls.Add(Me.gb_testblocks)
         Me.Controls.Add(Me.gb_inputfiles)
         Me.Font = New System.Drawing.Font("Tahoma", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Margin = New System.Windows.Forms.Padding(2, 4, 2, 4)
         Me.MaximizeBox = False
         Me.Name = "Form1"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "Krash 0.0.1a"
+        Me.Text = "Krash"
         Me.gb_inputfiles.ResumeLayout(False)
         Me.gb_testblocks.ResumeLayout(False)
         Me.gb_testblocks.PerformLayout()
@@ -1093,7 +1119,6 @@ Partial Class Form1
     Friend WithEvents sb_menu As System.Windows.Forms.ToolStripDropDownButton
     Friend WithEvents sb_menu_config As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents sb_menu_about As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents sb_label_spacer As System.Windows.Forms.ToolStripStatusLabel
     Friend WithEvents chk_tabulate As System.Windows.Forms.CheckBox
     Friend WithEvents gb_axis As System.Windows.Forms.GroupBox
     Friend WithEvents cmb_xscale As System.Windows.Forms.ComboBox
@@ -1146,6 +1171,9 @@ Partial Class Form1
     Friend WithEvents col_line As System.Windows.Forms.ColumnHeader
     Friend WithEvents col_key As System.Windows.Forms.ColumnHeader
     Friend WithEvents col_value As System.Windows.Forms.ColumnHeader
-    Friend WithEvents width As System.Windows.Forms.ColumnHeader
+    Friend WithEvents line_width As System.Windows.Forms.ColumnHeader
+    Friend WithEvents chk_useminmax As System.Windows.Forms.CheckBox
+    Friend WithEvents sb_read_file As System.Windows.Forms.ToolStripStatusLabel
+    Friend WithEvents sb_menu_runscript As System.Windows.Forms.ToolStripMenuItem
 
 End Class

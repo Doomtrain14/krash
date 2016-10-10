@@ -1,0 +1,33 @@
+This script will convert existing xo3l datalog to the new datalog format
+
+- This will add functional list in the header, the list of functional tests is in the "_funlist" file
+
+- This will convert the functional tests result into a string of 1's and 0's (. and p for ignored tests)
+    - The results of multiple tests having the same tname (test name) will be AND'd (Logical AND)
+
+- This will convert values to its base unit mA to A. MHz to Hz
+
+- This will fix the tpdcnt tests having different header. This was not mentioned in the do's and dont's in new logsum format document. But it is recommended that a tname (test name) must be associated to ONLY one test header, if a tname requires a different header, change it to a different tname
+
+- This will change post_fail_bin and pass_bin to bin_result
+
+Example:
+
+    tpdcnt Tpdcnt_val1 1.00 2.375 2.375 
+    tpdcnt Tpdcnt_val2 1.00 2.375 2.375 
+    tpdcnt Tpdcnt_val3 1.00 2.375 2.375 
+    tpdcnt Tpdcnt_val4 1.00 2.375 2.375 
+    tpdcnt tpdcnt_min  1.00 2.375 2.375 
+    tpdcnt PASS tpdcnt_min +61.822e+03 2.375 2.375 
+
+Will be converted into
+    Tpdcnt_val1 Tpdcnt_val1 1.00 2.375 2.375 
+    Tpdcnt_val2 Tpdcnt_val2 1.00 2.375 2.375 
+    Tpdcnt_val3 Tpdcnt_val3 1.00 2.375 2.375 
+    Tpdcnt_val4 Tpdcnt_val4 1.00 2.375 2.375 
+    tpdcnt_min  tpdcnt_min  1.00 2.375 2.375 
+    tpdcnt PASS tpdcnt_min +61.822e+03 2.375 2.375 
+
+- Command line usage
+    xo3l.pl <filename1> <filename2> ... <filenameN>
+      

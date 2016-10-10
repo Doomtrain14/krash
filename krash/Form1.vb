@@ -10,6 +10,7 @@
 
     Dim g_curr_input_files As New Hashtable()
     Dim g_curr_filelength As Long
+    Dim g_curr_read_file As String = ""
     Dim g_byteread As Long
     Dim g_curr_selected_test As String = ""
     Dim g_wafers_list As New List(Of String)
@@ -25,6 +26,8 @@
     Dim g_supplies As String
 
     Dim g_overwrite As Boolean = True
+
+
     Public Sub reset_roles()
         lb_groupby.Items.Clear()
         lb_legend.Items.Clear()
@@ -136,17 +139,25 @@
         If (bw_extracttests.IsBusy) Then
             bw_extracttests.CancelAsync()
         End If
+
+        If System.IO.File.Exists(Application.StartupPath & "\run.bat") Then
+            System.IO.File.Delete(Application.StartupPath & "\run.bat")
+        End If
+        If System.IO.File.Exists(Application.StartupPath & "\temp.jsl") Then
+            System.IO.File.Delete(Application.StartupPath & "\temp.jsl")
+        End If
     End Sub
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         reset_jmp_settings()
+        Me.Text = "Krash v" & Application.ProductVersion
     End Sub
 
     Private Sub bw_extracttests_DoWork(sender As Object, e As System.ComponentModel.DoWorkEventArgs) Handles bw_extracttests.DoWork
         'For Each file As String In g_input_files
         g_wafers_list.Clear()
         For Each file As DictionaryEntry In g_curr_input_files
-
+            g_curr_read_file = file.Key
             If System.IO.File.Exists(file.Value) = True Then
                 g_curr_filelength = New System.IO.FileInfo(file.Value).Length
                 g_byteread = 0
@@ -208,6 +219,7 @@
 
     Private Sub bw_extracttests_ProgressChanged(sender As Object, e As System.ComponentModel.ProgressChangedEventArgs) Handles bw_extracttests.ProgressChanged
         sb_status.Text = "Status: Reading input file(s) - " & e.ProgressPercentage & "%"
+        sb_read_file.Text = g_curr_read_file
 
     End Sub
 
@@ -220,6 +232,7 @@
             lb_testblocks.Items.Add(k)
         Next k
         sb_status.Text = "Status: Idle/Ready"
+        sb_read_file.Text = ""
 
         'Enable Controls
         gb_inputfiles.Enabled = True
@@ -346,8 +359,51 @@
                 Dim objWriter As New System.IO.StreamWriter(Application.StartupPath & "\temp.jsl", False)
                 objWriter.AutoFlush = True
                 If (cmb_jmp_script.Text = "Distribution") Then
+                    
+                    Dim m_x_max As Integer = -1
+                    Dim m_x_min As Integer = -1
+                    Dim m_x_list As New List(Of Integer)
+                    Dim m_y_list As New List(Of Integer)
+                    For Each item As ListViewItem In lv_refcolor.Items
+                        Dim tempstring As String
+                        Dim tempint As Long
+
+                        tempstring = (item.SubItems(1).Text.Replace("(", " ")).Replace(")", " ")
+
+                        If InStr(tempstring, "X:") > 0 Then
+                            tempint = CLng((tempstring.Split(New String() {"X:"}, StringSplitOptions.None))(1))
+                            If Not m_x_list.Contains(tempint) Then
+                                m_x_list.Add(tempint)
+                            End If
+                        Else
+                            tempint = CLng((tempstring.Split(New String() {"Y:"}, StringSplitOptions.None))(1))
+                            If Not m_y_list.Contains(tempint) Then
+                                m_y_list.Add(tempint)
+                            End If
+                        End If
+                    Next
+                    If m_x_list.Count > 0 Then
+                        If m_x_list.Max <> m_x_list.Min Then
+                            m_x_max = m_x_list.Max
+                            m_x_min = m_x_list.Min
+                        End If
+                    End If
+
+
+
                     objWriter.WriteLine("//!")
                     objWriter.WriteLine("open(""" & i & """);")
+
+                    objWriter.WriteLine("m_max = Col Maximum( " & lb_yvalue.Items(0) & " );")
+                    objWriter.WriteLine("m_min = Col Minimum( " & lb_yvalue.Items(0) & " );")
+
+                    objWriter.WriteLine("m_ref_max = " & m_x_max & ";")
+                    objWriter.WriteLine("m_ref_min = " & m_x_min & ";")
+
+                    objWriter.WriteLine("If (m_ref_max > m_max, m_max = m_ref_max, 1);")
+                    objWriter.WriteLine("If (m_ref_min < m_min, m_min = m_ref_min, 1);")
+
+                    objWriter.WriteLine("m_incr = (m_max - m_min)/100;")
 
                     'Multiply Y Value
                     For x As Integer = 0 To lb_yvalue.Items.Count - 1
@@ -383,12 +439,20 @@
                         objWriter.WriteLine("            ,Scale( ""Power"", {Power(" & txt_xbase_power.Text & ")} )")
                     End If
 
-                    If txt_xmaximum.Text.Length > 0 Then
+                    If chk_useminmax.Checked = True Then
+                        objWriter.WriteLine("            ,Max(  m_max )")
+                    ElseIf txt_xmaximum.Text.Length > 0 Then
                         objWriter.WriteLine("            ,Max(  " & txt_xmaximum.Text & " )")
+                    ElseIf m_x_max <> -1 And m_x_min <> -1 Then
+                        objWriter.WriteLine("            ,Max(  m_max + m_incr )")
                     End If
 
-                    If txt_xminimum.Text.Length > 0 Then
+                    If chk_useminmax.Checked = True Then
+                        objWriter.WriteLine("            ,Min(  m_min )")
+                    ElseIf txt_xminimum.Text.Length > 0 Then
                         objWriter.WriteLine("            ,Min(  " & txt_xminimum.Text & " )")
+                    ElseIf m_x_max <> -1 And m_x_min <> -1 Then
+                        objWriter.WriteLine("            ,Min(  m_min - m_incr )")
                     End If
 
                     If txt_xincrement.Text.Length > 0 Then
@@ -472,10 +536,49 @@
                     Next
                     objWriter.WriteLine(" ),")
                     objWriter.WriteLine("    Stack( 1 )")
+
                     objWriter.WriteLine(");")
                 ElseIf (cmb_jmp_script.Text = "Fit Y by X") Then
                     objWriter.WriteLine("//!")
                     objWriter.WriteLine("open(""" & i & """);")
+
+                    Dim m_x_max As Integer = -1
+                    Dim m_x_min As Integer = -1
+                    Dim m_y_max As Integer = -1
+                    Dim m_y_min As Integer = -1
+                    Dim m_x_list As New List(Of Integer)
+                    Dim m_y_list As New List(Of Integer)
+                    For Each item As ListViewItem In lv_refcolor.Items
+                        Dim tempstring As String
+                        Dim tempint As Long
+
+                        tempstring = (item.SubItems(1).Text.Replace("(", " ")).Replace(")", " ")
+
+                        If InStr(tempstring, "X:") > 0 Then
+                            tempint = CLng((tempstring.Split(New String() {"X:"}, StringSplitOptions.None))(1))
+                            If Not m_x_list.Contains(tempint) Then
+                                m_x_list.Add(tempint)
+                            End If
+                        Else
+                            tempint = CLng((tempstring.Split(New String() {"Y:"}, StringSplitOptions.None))(1))
+                            If Not m_y_list.Contains(tempint) Then
+                                m_y_list.Add(tempint)
+                            End If
+                        End If
+                    Next
+                    If m_x_list.Count > 0 Then
+                        If m_x_list.Max <> m_x_list.Min Then
+                            m_x_max = m_x_list.Max
+                            m_x_min = m_x_list.Min
+                        End If
+                    End If
+
+                    If m_y_list.Count > 0 Then
+                        If m_y_list.Max <> m_y_list.Min Then
+                            m_y_max = m_y_list.Max
+                            m_y_min = m_y_list.Min
+                        End If
+                    End If
 
                     'Multiply Y Value
                     For x As Integer = 0 To lb_yvalue.Items.Count - 1
@@ -494,6 +597,28 @@
                         End If
                     Next
 
+                    objWriter.WriteLine("m_y_max = Col Maximum( " & lb_yvalue.Items(0) & " );")
+                    objWriter.WriteLine("m_y_min = Col Minimum( " & lb_yvalue.Items(0) & " );")
+
+                    objWriter.WriteLine("m_y_ref_max = " & m_y_max & ";")
+                    objWriter.WriteLine("m_y_ref_min = " & m_y_min & ";")
+
+                    objWriter.WriteLine("If (m_y_ref_max > m_y_max, m_y_max = m_y_ref_max, 1);")
+                    objWriter.WriteLine("If (m_y_ref_min < m_y_min, m_y_min = m_y_ref_min, 1);")
+
+                    objWriter.WriteLine("m_y_incr = (m_y_max - m_y_min)/100;")
+
+
+                    objWriter.WriteLine("m_x_max = Col Maximum( " & lb_yvalue.Items(0) & " );")
+                    objWriter.WriteLine("m_x_min = Col Minimum( " & lb_yvalue.Items(0) & " );")
+
+                    objWriter.WriteLine("m_x_ref_max = " & m_y_max & ";")
+                    objWriter.WriteLine("m_x_ref_min = " & m_y_min & ";")
+
+                    objWriter.WriteLine("If (m_x_ref_max > m_x_max, m_x_max = m_x_ref_max, 1);")
+                    objWriter.WriteLine("If (m_x_ref_min < m_x_min, m_x_min = m_x_ref_min, 1);")
+
+                    objWriter.WriteLine("m_x_incr = (m_x_max - m_x_min)/100;")
 
                     objWriter.Write("Bivariate( ")
 
@@ -531,12 +656,20 @@
                         objWriter.WriteLine("            ,Scale( ""Power"", {Power(" & txt_xbase_power.Text & ")} )")
                     End If
 
-                    If txt_xmaximum.Text.Length > 0 Then
+                    If chk_useminmax.Checked = True Then
+                        objWriter.WriteLine("            ,Max(  m_x_max )")
+                    ElseIf txt_xmaximum.Text.Length > 0 Then
                         objWriter.WriteLine("            ,Max(  " & txt_xmaximum.Text & " )")
+                    ElseIf m_x_max <> -1 And m_x_min <> -1 Then
+                        objWriter.WriteLine("            ,Max(  m_x_max + m_x_incr )")
                     End If
 
-                    If txt_xminimum.Text.Length > 0 Then
+                    If chk_useminmax.Checked = True Then
+                        objWriter.WriteLine("            ,Min(  m_x_min )")
+                    ElseIf txt_xminimum.Text.Length > 0 Then
                         objWriter.WriteLine("            ,Min(  " & txt_xminimum.Text & " )")
+                    ElseIf m_x_max <> -1 And m_x_min <> -1 Then
+                        objWriter.WriteLine("            ,Min(  m_x_min - m_x_incr )")
                     End If
 
                     If txt_xincrement.Text.Length > 0 Then
@@ -572,12 +705,20 @@
                         objWriter.WriteLine("            ,Scale( ""Power"", {Power(" & txt_ybase_power.Text & ")} )")
                     End If
 
-                    If txt_ymaximum.Text.Length > 0 Then
+                    If chk_useminmax.Checked = True Then
+                        objWriter.WriteLine("            ,Max(  m_y_max )")
+                    ElseIf txt_ymaximum.Text.Length > 0 Then
                         objWriter.WriteLine("            ,Max(  " & txt_ymaximum.Text & " )")
+                    ElseIf m_y_max <> -1 And m_y_min <> -1 Then
+                        objWriter.WriteLine("            ,Max(  m_y_max + m_y_incr )")
                     End If
 
-                    If txt_yminimum.Text.Length > 0 Then
+                    If chk_useminmax.Checked = True Then
+                        objWriter.WriteLine("            ,Min(  m_y_min )")
+                    ElseIf txt_yminimum.Text.Length > 0 Then
                         objWriter.WriteLine("            ,Min(  " & txt_yminimum.Text & " )")
+                    ElseIf m_y_max <> -1 And m_y_min <> -1 Then
+                        objWriter.WriteLine("            ,Min(  m_y_min - m_y_incr )")
                     End If
 
                     If txt_yincrement.Text.Length > 0 Then
@@ -660,7 +801,7 @@
                     Next
                     objWriter.WriteLine(" ),")
 
-                    
+
 
                     objWriter.WriteLine("Fill Areas( 1 ),")
                     objWriter.WriteLine("Color Theme( ""Jet"" )")
@@ -859,14 +1000,14 @@
                     objWriter.WriteLine("		Column Table(")
 
                     'Insert Grouping Values
-                    objWriter.Write("Grouping Columns( ")
+                    objWriter.Write("			Grouping Columns( ")
                     For x As Integer = 0 To lb_groupby.Items.Count - 1
                         objWriter.Write(" :" & lb_groupby.Items(x) & ", ")
                     Next
                     objWriter.WriteLine(" ),")
 
                     'Insert Analysis Values
-                    objWriter.Write("Analysis Columns( ")
+                    objWriter.Write("			Analysis Columns( ")
                     For x As Integer = 0 To lb_yvalue.Items.Count - 1
                         objWriter.Write(" :" & lb_yvalue.Items(x) & ", ")
                     Next
@@ -892,7 +1033,7 @@
             Dim headerflag As Boolean = False
             Dim cleanupflag As Boolean = False
             For Each file As DictionaryEntry In g_input_files
-
+                g_curr_read_file = file.Key
                 If System.IO.File.Exists(file.Value) = True Then
                     Dim str_output_file = System.IO.Path.GetDirectoryName(file.Value) & "\krash_" & testblock.Key & ".csv"
 
@@ -919,6 +1060,9 @@
                     'Default
                     g_wafer = "99"
                     g_reticle = "99"
+
+                    Dim m_buff_printline As String = ""
+                    Dim m_bin_result As String = "BIN_UNKNOWN"
 
                     Do While objReader.Peek() <> -1
                         strLine = objReader.ReadLine()
@@ -951,6 +1095,9 @@
                             If g_wafer_def.Item(g_wafer).ToString.Length > 0 Then
                                 g_wafer &= "-" & UCase$(g_wafer_def.Item(g_wafer))
                             End If
+                        ElseIf InStr(strLine, "#START_DEVICE", CompareMethod.Binary) = 1 Then
+                            m_buff_printline = ""
+                            m_bin_result = "BIN_UNKNOWN"
                         ElseIf InStr(strLine, "#DIE_X", CompareMethod.Binary) = 1 Then
                             g_die_x = (strLine.Split(" "))(1)
                         ElseIf InStr(strLine, "#DIE_Y", CompareMethod.Binary) = 1 Then
@@ -959,17 +1106,21 @@
                             g_reticle = (strLine.Split(" "))(1)
                         ElseIf InStr(strLine, "#SUPPLIES", CompareMethod.Binary) = 1 Then
                             g_supplies = (strLine.Split(" "))(1)
+                        ElseIf InStr(strLine, "bin_result", CompareMethod.Binary) = 1 And Equals("bin_result", testblock.Key.ToString) = False Then
+                            m_bin_result = UCase((strLine.Split(" "))(1))
+                        ElseIf InStr(strLine, "#END_DEVICE", CompareMethod.Binary) = 1 Then
+                            m_buff_printline = m_buff_printline.Replace("BIN_UNKNOWN", m_bin_result)
+                            objWriter.Write(m_buff_printline)
+                            m_buff_printline = ""
                         ElseIf strLine.Length >= testblock.Key.ToString.Length Then
-                            'Dim tempsplit As String()
-                            'tempsplit = (strLine.Split(" "))(0)
-                            'If strLine.Substring(0, testblock.Key.ToString.Length) = testblock.Key Then
                             If (strLine.Split(" "))(0) = testblock.Key Then
                                 If headerflag = False Then
                                     headerflag = True
-                                    objWriter.WriteLine("LOT,WAFER,RETICLE,DIE_X,DIE_Y,TEMP," & g_test_header.Replace(" ", ",").Trim(","))
+                                    m_buff_printline &= "LOT,WAFER,RETICLE,DIE_X,DIE_Y,TEMP," & g_test_header.Replace(" ", ",").Trim(",") & ",BIN_RESULT" & vbNewLine
                                 End If
-                                objWriter.WriteLine(g_lot & "," & g_wafer & "," & g_reticle & "," & g_die_x & "," & g_die_y & "," & g_temp & "," & (strLine.Replace(" ", ",").Trim(",")).Replace(":", ","))
+                                m_buff_printline &= g_lot & "," & g_wafer & "," & g_reticle & "," & g_die_x & "," & g_die_y & "," & g_temp & "," & (strLine.Replace(" ", ",").Trim(",")).Replace(":", ",") & "," & m_bin_result & vbNewLine
                             End If
+
                         End If
 
                     Loop
@@ -983,6 +1134,7 @@
 
     Private Sub bw_krash_ProgressChanged(sender As Object, e As System.ComponentModel.ProgressChangedEventArgs) Handles bw_krash.ProgressChanged
         sb_status.Text = "Status: Krashing input file(s) - " & e.ProgressPercentage & "%"
+        sb_read_file.Text = g_curr_read_file
     End Sub
 
     Private Sub bw_krash_RunWorkerCompleted(sender As Object, e As System.ComponentModel.RunWorkerCompletedEventArgs) Handles bw_krash.RunWorkerCompleted
@@ -993,6 +1145,7 @@
         sb_menu.Enabled = True
 
         sb_status.Text = "Status: Idle/Ready"
+        sb_read_file.Text = ""
     End Sub
 
 
@@ -1090,6 +1243,10 @@
                 lb_groupby.Items.Remove(lb_groupby.SelectedItem)
             Loop
         End If
+    End Sub
+
+    Private Sub txt_wafer_def_GotFocus(sender As Object, e As EventArgs) Handles txt_wafer_def.GotFocus
+        txt_wafer_def.SelectAll()
     End Sub
 
     Private Sub txt_wafer_def_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txt_wafer_def.KeyPress
@@ -1248,38 +1405,70 @@
         End If
     End Sub
 
+
+
+    Private Sub txt_xbase_power_GotFocus(sender As Object, e As EventArgs) Handles txt_xbase_power.GotFocus
+        txt_xbase_power.SelectAll()
+    End Sub
+
     Private Sub txt_xbase_power_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txt_xbase_power.KeyPress
+        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_xbase_power.Text, ".") < 1) Or (e.KeyChar = "-" And InStr(txt_xbase_power.Text, "-") < 1))
+    End Sub
 
-        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_xbase_power.Text, ".") < 1))
-
+    Private Sub txt_xincrement_GotFocus(sender As Object, e As EventArgs) Handles txt_xincrement.GotFocus
+        txt_xincrement.SelectAll()
     End Sub
 
     Private Sub txt_xincrement_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txt_xincrement.KeyPress
-        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_xincrement.Text, ".") < 1))
+        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_xincrement.Text, ".") < 1) Or (e.KeyChar = "-" And InStr(txt_xincrement.Text, "-") < 1))
+    End Sub
+
+    Private Sub txt_xmaximum_GotFocus(sender As Object, e As EventArgs) Handles txt_xmaximum.GotFocus
+        txt_xmaximum.SelectAll()
     End Sub
 
     Private Sub txt_xmaximum_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txt_xmaximum.KeyPress
+        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_xmaximum.Text, ".") < 1) Or (e.KeyChar = "-" And InStr(txt_xmaximum.Text, "-") < 1))
+    End Sub
 
+    Private Sub txt_xminimum_GotFocus(sender As Object, e As EventArgs) Handles txt_xminimum.GotFocus
+        txt_xminimum.SelectAll()
     End Sub
 
     Private Sub txt_xminimum_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txt_xminimum.KeyPress
-        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_xminimum.Text, ".") < 1))
+        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_xminimum.Text, ".") < 1) Or (e.KeyChar = "-" And InStr(txt_xminimum.Text, "-") < 1))
+    End Sub
+
+    Private Sub txt_ybase_power_GotFocus(sender As Object, e As EventArgs) Handles txt_ybase_power.GotFocus
+        txt_ybase_power.SelectAll()
     End Sub
 
     Private Sub txt_ybase_power_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txt_ybase_power.KeyPress
-        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_ybase_power.Text, ".") < 1))
+        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_ybase_power.Text, ".") < 1) Or (e.KeyChar = "-" And InStr(txt_ybase_power.Text, "-") < 1))
+    End Sub
+
+    Private Sub txt_yminimum_GotFocus(sender As Object, e As EventArgs) Handles txt_yminimum.GotFocus
+        txt_yminimum.SelectAll()
     End Sub
 
     Private Sub txt_yminimum_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txt_yminimum.KeyPress
-        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_yminimum.Text, ".") < 1))
+        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_yminimum.Text, ".") < 1) Or (e.KeyChar = "-" And InStr(txt_yminimum.Text, "-") < 1))
+    End Sub
+
+    Private Sub txt_ymaximum_GotFocus(sender As Object, e As EventArgs) Handles txt_ymaximum.GotFocus
+        txt_ymaximum.SelectAll()
     End Sub
 
     Private Sub txt_ymaximum_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txt_ymaximum.KeyPress
-        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_ymaximum.Text, ".") < 1))
+        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_ymaximum.Text, ".") < 1) Or (e.KeyChar = "-" And InStr(txt_ymaximum.Text, "-") < 1))
+    End Sub
+
+    Private Sub txt_yincrement_GotFocus(sender As Object, e As EventArgs) Handles txt_yincrement.GotFocus
+        txt_yincrement.SelectAll()
     End Sub
 
     Private Sub txt_yincrement_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txt_yincrement.KeyPress
-        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_yincrement.Text, ".") < 1))
+        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_yincrement.Text, ".") < 1) Or (e.KeyChar = "-" And InStr(txt_yincrement.Text, "-") < 1))
     End Sub
 
     Private Sub sb_menu_enable_jmp_CheckedChanged(sender As Object, e As EventArgs) Handles sb_menu_enable_jmp.CheckedChanged
@@ -1343,8 +1532,12 @@
         pic_ref_color.BackColor = dg_color.Color
     End Sub
 
+    Private Sub txt_ref_value_GotFocus(sender As Object, e As EventArgs) Handles txt_ref_value.GotFocus
+        txt_ref_value.SelectAll()
+    End Sub
+
     Private Sub txt_ref_value_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txt_ref_value.KeyPress
-        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_ref_value.Text, ".") < 1))
+        e.Handled = Not (IsNumeric(e.KeyChar) Or Asc(e.KeyChar) = 8 Or (e.KeyChar = "." And InStr(txt_ref_value.Text, ".") < 1) Or (e.KeyChar = "-" And InStr(txt_ref_value.Text, "-") < 1))
     End Sub
 
     Private Sub cmd_add_refline_Click(sender As Object, e As EventArgs) Handles cmd_add_refline.Click
@@ -1378,7 +1571,7 @@
 
             lv_refcolor.Items(index).SubItems.Add(num_line_width.Value)
         End If
-        
+
     End Sub
 
     Private Sub cmd_clear_lines_Click(sender As Object, e As EventArgs) Handles cmd_clear_lines.Click
@@ -1624,6 +1817,10 @@
         txt_ref_value.BackColor = Color.Ivory
     End Sub
 
+    Private Sub txt_ref_label_GotFocus(sender As Object, e As EventArgs) Handles txt_ref_label.GotFocus
+        txt_ref_label.SelectAll()
+    End Sub
+
     Private Sub txt_ref_label_MouseEnter(sender As Object, e As EventArgs) Handles txt_ref_label.MouseEnter
         txt_ref_label.BackColor = Color.FromArgb(230, 255, 255)
     End Sub
@@ -1632,7 +1829,33 @@
         txt_ref_label.BackColor = Color.Ivory
     End Sub
 
-    Private Sub lb_yvalue_SelectedIndexChanged(sender As Object, e As EventArgs) Handles lb_yvalue.SelectedIndexChanged
 
+
+
+
+    Private Sub lbl_selected_test_Click(sender As Object, e As EventArgs) Handles lbl_selected_test.Click
+
+    End Sub
+
+    Private Sub chk_useminmax_CheckedChanged(sender As Object, e As EventArgs) Handles chk_useminmax.CheckedChanged
+        txt_xmaximum.Text = ""
+        txt_xminimum.Text = ""
+
+        txt_xmaximum.Enabled = Not chk_useminmax.Checked
+        txt_xminimum.Enabled = Not chk_useminmax.Checked
+
+        txt_ymaximum.Text = ""
+        txt_yminimum.Text = ""
+
+        txt_ymaximum.Enabled = Not chk_useminmax.Checked
+        txt_yminimum.Enabled = Not chk_useminmax.Checked
+    End Sub
+
+    Private Sub sb_menu_about_Click(sender As Object, e As EventArgs) Handles sb_menu_about.Click
+        frm_about.ShowDialog(Me)
+    End Sub
+
+    Private Sub sb_menu_runscript_Click(sender As Object, e As EventArgs) Handles sb_menu_runscript.Click
+        frm_runscript.ShowDialog(Me)
     End Sub
 End Class
